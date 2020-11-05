@@ -5,11 +5,11 @@ import {
   Image,
   SafeAreaView,
   Dimensions,
-  NativeModules,
   Linking,
   TouchableOpacity,
 } from 'react-native';
 import CardStack, {Card} from 'react-native-card-stack-swiper';
+import Sound from 'react-native-sound';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import styles from './styles';
 
@@ -25,6 +25,10 @@ export default function FactoryScreen({selectedPlaylist, spotifyApi}) {
     GetPlaylistDetails();
   }, []);
 
+  Sound.setCategory('Playback', false);
+
+  var previewSong;
+
   async function GetPlaylistDetails() {
     await spotifyApi.getPlaylist(selectedPlaylist).then(
       function (data) {
@@ -37,7 +41,7 @@ export default function FactoryScreen({selectedPlaylist, spotifyApi}) {
             ),
         );
 
-        console.log(data.body.tracks.items[num].track.id);
+        // console.log(data.body.tracks.items[num].track.id);
 
         spotifyApi
           .getArtist(data.body.tracks.items[num].track.artists[0].id)
@@ -56,8 +60,39 @@ export default function FactoryScreen({selectedPlaylist, spotifyApi}) {
                     let recommendations = dataA.body.tracks;
                     // console.log(recommendations);
                     setSuggestions([...suggestions, ...recommendations]);
-                    if (suggestions.length === 0) {
+                    if (
+                      suggestions.length === 0 &&
+                      dataA.body.tracks[0].preview_url !== null
+                    ) {
                       // RNSoundPlayer.playUrl(dataA.body.tracks[0].preview_url);
+                      previewSong = new Sound(
+                        dataA.body.tracks[0].preview_url,
+                        Sound.MAIN_BUNDLE,
+                        (error) => {
+                          if (error) {
+                            console.log('failed to load the sound', error);
+                            return;
+                          }
+                          // loaded successfully
+                          console.log(
+                            'duration in seconds: ' +
+                              previewSong.getDuration() +
+                              'number of channels: ' +
+                              previewSong.getNumberOfChannels(),
+                          );
+
+                          // Play the sound with an onEnd callback
+                          previewSong.play((success) => {
+                            if (success) {
+                              console.log('successfully finished playing');
+                            } else {
+                              console.log(
+                                'playback failed due to audio decoding errors',
+                              );
+                            }
+                          });
+                        },
+                      );
                     }
                   },
                   function (err) {
@@ -76,8 +111,54 @@ export default function FactoryScreen({selectedPlaylist, spotifyApi}) {
     );
   }
 
+  // var previewSong = new Sound(song, Sound.MAIN_BUNDLE, (error) => {
+  //   if (error) {
+  //     console.log('failed to load the sound', error);
+  //     return;
+  //   }
+  //   // loaded successfully
+  //   console.log(
+  //     'duration in seconds: ' +
+  //       previewSong.getDuration() +
+  //       'number of channels: ' +
+  //       previewSong.getNumberOfChannels(),
+  //   );
+
+  //   // Play the sound with an onEnd callback
+  //   previewSong.play((success) => {
+  //     if (success) {
+  //       console.log('successfully finished playing');
+  //     } else {
+  //       console.log('playback failed due to audio decoding errors');
+  //     }
+  //   });
+  // });
+
   function swipedLeft(key, song) {
-    // RNSoundPlayer.playUrl(song);
+    if (song !== null) {
+      previewSong = new Sound(song, Sound.MAIN_BUNDLE, (error) => {
+        if (error) {
+          console.log('failed to load the sound', error);
+          return;
+        }
+        // loaded successfully
+        console.log(
+          'duration in seconds: ' +
+            previewSong.getDuration() +
+            'number of channels: ' +
+            previewSong.getNumberOfChannels(),
+        );
+
+        // Play the sound with an onEnd callback
+        previewSong.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      });
+    }
     if (key % 5 === 0) {
       GetPlaylistDetails();
     }
@@ -118,7 +199,11 @@ export default function FactoryScreen({selectedPlaylist, spotifyApi}) {
             <CardStack
               disableTopSwipe
               disableBottomSwipe
-              renderNoMoreCards={() => {}}
+              renderNoMoreCards={() => {
+                <Text>
+                  if this takes more than 10 seconds, please restart the app
+                </Text>;
+              }}
               ref={(swiper) => {
                 swipeRef = swiper;
               }}>

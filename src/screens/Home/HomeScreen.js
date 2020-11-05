@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import Factory from '../Factory';
 import FactoryScreen from '../Factory/FactoryScreen';
 import styles from './styles';
 
@@ -57,10 +58,7 @@ export default function HomeScreen({accessToken}) {
 
   if (selectedPlaylist) {
     return (
-      <FactoryScreen
-        selectedPlaylist={selectedPlaylist}
-        spotifyApi={spotifyApi}
-      />
+      <Factory selectedPlaylist={selectedPlaylist} spotifyApi={spotifyApi} />
     );
   }
 
