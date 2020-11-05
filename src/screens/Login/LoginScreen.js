@@ -23,20 +23,20 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.topContainer}>
+      <View style={styles.titleContainer}>
         <Text style={styles.title}>VibeMatch</Text>
       </View>
-      <View style={styles.topContainer}>
-        <TouchableOpacity
-          style={styles.buttonContainer}
-          onPress={() => login()}>
-          <View>
-            <Text style={styles.buttonText}>
-              {accessToken ? accessToken : 'Spotify Login'}
-            </Text>
-          </View>
-        </TouchableOpacity>
+      <View style={styles.bodyContainer}>
+        <Text style={styles.bodyText}>Love meets Tunes.</Text>
+        <Text style={styles.bodyText}>All just a swipe away!</Text>
       </View>
+      <TouchableOpacity style={styles.buttonContainer} onPress={() => login()}>
+        <View>
+          <Text style={styles.buttonText}>
+            {accessToken ? accessToken : 'LOG IN'}
+          </Text>
+        </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
