@@ -7,6 +7,8 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   playlistImage: {
     width: 90,
@@ -16,11 +18,16 @@ const styles = StyleSheet.create({
   playlistTitle: {
     color: '#ffffff',
     fontSize: 25,
-    fontWeight: 'bold',
+    fontFamily: 'NotoSansSC-Bold',
+    lineHeight: 30,
+    marginTop: 10,
+    marginBottom: 5,
   },
   playlistArtists: {
     color: '#b3b3b3',
     fontSize: 20,
+    fontFamily: 'NotoSansSC-Bold',
+    lineHeight: 25,
   },
   actionContainer: {
     flexDirection: 'row',

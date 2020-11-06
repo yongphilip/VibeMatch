@@ -19,25 +19,28 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 25,
     textAlign: 'center',
+    fontFamily: 'NotoSansSC-Bold',
   },
   title: {
     color: '#1ed760',
     fontSize: 60,
-    fontWeight: 'bold',
+    fontFamily: 'NotoSansSC-Bold',
   },
   buttonContainer: {
     height: 60,
-    width: 250,
+    width: 300,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#1ed760',
     marginBottom: 100,
+    flexDirection: 'row',
   },
   buttonText: {
+    marginLeft: 10,
     color: '#ffffff',
-    fontSize: 30,
-    fontWeight: 'bold',
+    fontSize: 25,
+    fontFamily: 'NotoSansSC-Bold',
   },
 });
 

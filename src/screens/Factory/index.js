@@ -12,6 +12,7 @@ import CardStack, {Card} from 'react-native-card-stack-swiper';
 import Sound from 'react-native-sound';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import styles from './styles';
+import HomeScreen from '../Home/HomeScreen';
 
 var swipeRef = createRef();
 
@@ -32,113 +33,120 @@ export default class Factory extends Component {
       start: true,
       noSong: true,
       currentIndex: -1,
+      accessToken: props.accessToken,
+      returnHome: false,
     };
   }
 
   componentDidMount() {
     this.GetPlaylistDetails();
+    this.setState({returnHome: false});
   }
 
   async GetPlaylistDetails() {
     await this.state.spotifyApi.getPlaylist(this.state.selectedPlaylist).then(
       (data) => {
         // console.log('Some information about this playlist', data.body);
-        this.setState({details: data.body});
-        var num = Math.floor(
-          Math.random() *
-            Math.floor(
-              data.body.tracks.total > 100 ? 100 : data.body.tracks.total,
-            ),
-        );
-
-        // console.log(data.body.tracks.items[num].track.id);
-
-        this.state.spotifyApi
-          .getArtist(data.body.tracks.items[num].track.artists[0].id)
-          .then(
-            (dataA) => {
-              console.log(
-                'Artist',
-                data.body.tracks.items[num].track.artists[0].id,
-              );
-              console.log('Genre', dataA.body.genres);
-              console.log('Track', data.body.tracks.items[num].track.id);
-
-              this.state.spotifyApi
-                .getRecommendations({
-                  seed_artists: data.body.tracks.items[num].track.artists[0].id,
-                  seed_genres:
-                    dataA.body.genres.length > 3
-                      ? [
-                          dataA.body.genres[0],
-                          dataA.body.genres[1],
-                          dataA.body.genres[2],
-                        ]
-                      : dataA.body.genres,
-                  seed_tracks: data.body.tracks.items[num].track.id,
-                  limit: 10,
-                })
-                .then(
-                  (dataA) => {
-                    let recommendations = dataA.body.tracks;
-                    // console.log(recommendations);
-                    this.setState({
-                      suggestions: [
-                        ...this.state.suggestions,
-                        ...recommendations,
-                      ],
-                    });
-
-                    // RNSoundPlayer.playUrl(dataA.body.tracks[0].preview_url);
-                    if (this.state.start) {
-                      if (dataA.body.tracks[0].preview_url !== null) {
-                        const previewSong = new Sound(
-                          dataA.body.tracks[0].preview_url,
-                          Sound.MAIN_BUNDLE,
-                          (error) => {
-                            if (error) {
-                              console.log('failed to load the sound', error);
-                              return;
-                            }
-                            // loaded successfully
-                            console.log(
-                              'duration in seconds: ' +
-                                previewSong.getDuration() +
-                                'number of channels: ' +
-                                previewSong.getNumberOfChannels(),
-                            );
-
-                            // Play the sound with an onEnd callback
-                            previewSong.play((success) => {
-                              if (success) {
-                                console.log('successfully finished playing');
-                              } else {
-                                console.log(
-                                  'playback failed due to audio decoding errors',
-                                );
-                              }
-                            });
-                          },
-                        );
-                        this.setState({
-                          currentSong: previewSong,
-                          start: false,
-                          noSong: false,
-                        });
-                      } else {
-                        this.setState({noSong: true});
-                      }
-                    }
-                  },
-                  function (err) {
-                    console.log('Something went wrong!', err);
-                  },
-                );
-            },
-            function (err) {
-              console.error(err);
-            },
+        if (data.body.tracks.total === 0) {
+        } else {
+          this.setState({details: data.body});
+          var num = Math.floor(
+            Math.random() *
+              Math.floor(
+                data.body.tracks.total > 100 ? 100 : data.body.tracks.total,
+              ),
           );
+
+          // console.log(data.body.tracks.items[num].track.id);
+
+          this.state.spotifyApi
+            .getArtist(data.body.tracks.items[num].track.artists[0].id)
+            .then(
+              (dataA) => {
+                console.log(
+                  'Artist',
+                  data.body.tracks.items[num].track.artists[0].id,
+                );
+                console.log('Genre', dataA.body.genres);
+                console.log('Track', data.body.tracks.items[num].track.id);
+
+                this.state.spotifyApi
+                  .getRecommendations({
+                    seed_artists:
+                      data.body.tracks.items[num].track.artists[0].id,
+                    seed_genres:
+                      dataA.body.genres.length > 3
+                        ? [
+                            dataA.body.genres[0],
+                            dataA.body.genres[1],
+                            dataA.body.genres[2],
+                          ]
+                        : dataA.body.genres,
+                    seed_tracks: data.body.tracks.items[num].track.id,
+                    limit: 10,
+                  })
+                  .then(
+                    (dataA) => {
+                      let recommendations = dataA.body.tracks;
+                      // console.log(recommendations);
+                      this.setState({
+                        suggestions: [
+                          ...this.state.suggestions,
+                          ...recommendations,
+                        ],
+                      });
+
+                      // RNSoundPlayer.playUrl(dataA.body.tracks[0].preview_url);
+                      if (this.state.start) {
+                        if (dataA.body.tracks[0].preview_url !== null) {
+                          const previewSong = new Sound(
+                            dataA.body.tracks[0].preview_url,
+                            Sound.MAIN_BUNDLE,
+                            (error) => {
+                              if (error) {
+                                console.log('failed to load the sound', error);
+                                return;
+                              }
+                              // loaded successfully
+                              console.log(
+                                'duration in seconds: ' +
+                                  previewSong.getDuration() +
+                                  'number of channels: ' +
+                                  previewSong.getNumberOfChannels(),
+                              );
+
+                              // Play the sound with an onEnd callback
+                              previewSong.play((success) => {
+                                if (success) {
+                                  console.log('successfully finished playing');
+                                } else {
+                                  console.log(
+                                    'playback failed due to audio decoding errors',
+                                  );
+                                }
+                              });
+                            },
+                          );
+                          this.setState({
+                            currentSong: previewSong,
+                            start: false,
+                            noSong: false,
+                          });
+                        } else {
+                          this.setState({noSong: true});
+                        }
+                      }
+                    },
+                    function (err) {
+                      console.log('Something went wrong!', err);
+                    },
+                  );
+              },
+              function (err) {
+                console.error(err);
+              },
+            );
+        }
       },
       function (err) {
         console.log('Something went wrong!', err);
@@ -299,20 +307,33 @@ export default class Factory extends Component {
   }
 
   LoadingScreen() {
+    if (this.state.returnHome) {
+      if (!this.state.noSong) {
+        this.state.currentSong.stop().release();
+      }
+      return <HomeScreen accessToken={this.state.accessToken} />;
+    }
     if (this.state.details) {
       return (
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.headerContainer}>
             {this.state.details.images.length > 0 ? (
-              <Image
-                source={{uri: this.state.details.images[0].url}}
-                style={styles.playlistImage}
-              />
+              <TouchableOpacity
+                onPress={() => this.setState({returnHome: true})}>
+                <Image
+                  source={{uri: this.state.details.images[0].url}}
+                  style={styles.playlistImage}
+                  onPress={() => console.log('pressed')}
+                />
+              </TouchableOpacity>
             ) : (
-              <Image
-                source={require('../../assets/noImg.jpg')}
-                style={styles.playlistImage}
-              />
+              <TouchableOpacity
+                onPress={() => this.setState({returnHome: true})}>
+                <Image
+                  source={require('../../assets/noImg.jpg')}
+                  style={styles.playlistImage}
+                />
+              </TouchableOpacity>
             )}
           </View>
           <View style={{flex: 1}}>
@@ -422,7 +443,20 @@ export default class Factory extends Component {
       );
     }
 
-    return <Text>loading</Text>;
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#000000',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Text style={{color: 'white', fontSize: 25}}>Loading /</Text>
+        <Text style={{color: 'white', fontSize: 25}}>
+          There's No Song In Playlist
+        </Text>
+      </View>
+    );
   }
 
   render() {

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {View, Text, SafeAreaView, TouchableOpacity} from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import styles from './styles';
 
 import authHandler from '../../utils/AuthenticationHandler';
@@ -31,11 +32,8 @@ export default function LoginScreen() {
         <Text style={styles.bodyText}>All just a swipe away!</Text>
       </View>
       <TouchableOpacity style={styles.buttonContainer} onPress={() => login()}>
-        <View>
-          <Text style={styles.buttonText}>
-            {accessToken ? accessToken : 'LOG IN'}
-          </Text>
-        </View>
+        <FontAwesome name="spotify" size={35} color="white" />
+        <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

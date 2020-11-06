@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 30,
     textAlign: 'center',
+    fontFamily: 'NotoSansSC-Bold',
   },
   playlistItem: {
     flexDirection: 'row',
@@ -40,6 +41,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 18,
     marginLeft: 20,
+    fontFamily: 'NotoSansSC-Bold',
   },
 });
 

@@ -8,7 +8,6 @@ import {
   Image,
 } from 'react-native';
 import Factory from '../Factory';
-import FactoryScreen from '../Factory/FactoryScreen';
 import styles from './styles';
 
 var SpotifyWebApi = require('spotify-web-api-node');
@@ -39,7 +38,7 @@ export default function HomeScreen({accessToken}) {
           //   data.body,
           // );
           setUser(data.body);
-          spotifyApi.getUserPlaylists(data.uri).then(
+          spotifyApi.getUserPlaylists(data.uri, {limit: 50}).then(
             function (dataPL) {
               // console.log('Retrieved playlists', dataPL.body);
               setPlaylists(dataPL.body.items);
@@ -58,7 +57,11 @@ export default function HomeScreen({accessToken}) {
 
   if (selectedPlaylist) {
     return (
-      <Factory selectedPlaylist={selectedPlaylist} spotifyApi={spotifyApi} />
+      <Factory
+        selectedPlaylist={selectedPlaylist}
+        spotifyApi={spotifyApi}
+        accessToken={accessToken}
+      />
     );
   }
 
@@ -97,7 +100,9 @@ export default function HomeScreen({accessToken}) {
                     style={styles.playlistImage}
                   />
                 )}
-                <Text style={styles.data}>{item.name}</Text>
+                <Text numberOfLines={1} style={styles.data}>
+                  {item.name}
+                </Text>
               </TouchableOpacity>
             ) : null;
           })
