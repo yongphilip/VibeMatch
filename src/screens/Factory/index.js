@@ -30,6 +30,8 @@ export default class Factory extends Component {
       currentSong: {},
       currentInsideSong: {},
       start: true,
+      noSong: true,
+      currentIndex: -1,
     };
   }
 
@@ -55,11 +57,24 @@ export default class Factory extends Component {
           .getArtist(data.body.tracks.items[num].track.artists[0].id)
           .then(
             (dataA) => {
-              //   console.log('Artist information', dataA.body);
+              console.log(
+                'Artist',
+                data.body.tracks.items[num].track.artists[0].id,
+              );
+              console.log('Genre', dataA.body.genres);
+              console.log('Track', data.body.tracks.items[num].track.id);
+
               this.state.spotifyApi
                 .getRecommendations({
                   seed_artists: data.body.tracks.items[num].track.artists[0].id,
-                  seed_genres: dataA.body.genres,
+                  seed_genres:
+                    dataA.body.genres.length > 3
+                      ? [
+                          dataA.body.genres[0],
+                          dataA.body.genres[1],
+                          dataA.body.genres[2],
+                        ]
+                      : dataA.body.genres,
                   seed_tracks: data.body.tracks.items[num].track.id,
                   limit: 10,
                 })
@@ -105,7 +120,13 @@ export default class Factory extends Component {
                             });
                           },
                         );
-                        this.setState({currentSong: previewSong, start: false});
+                        this.setState({
+                          currentSong: previewSong,
+                          start: false,
+                          noSong: false,
+                        });
+                      } else {
+                        this.setState({noSong: true});
                       }
                     }
                   },
@@ -126,7 +147,9 @@ export default class Factory extends Component {
   }
 
   swipedLeft(key) {
-    this.state.currentSong.stop().release();
+    if (!this.state.noSong) {
+      this.state.currentSong.stop().release();
+    }
 
     if (this.state.suggestions[key + 1].preview_url !== null) {
       // RNSoundPlayer.playUrl(dataA.body.tracks[0].preview_url);
@@ -156,7 +179,13 @@ export default class Factory extends Component {
           });
         },
       );
-      this.setState({currentSong: previewSong});
+      this.setState({
+        currentSong: previewSong,
+        noSong: false,
+        currentIndex: key,
+      });
+    } else {
+      this.setState({noSong: true, currentIndex: key});
     }
     if (key % 5 === 0) {
       this.GetPlaylistDetails();
@@ -164,7 +193,9 @@ export default class Factory extends Component {
   }
 
   async swipedRight(key, item) {
-    this.state.currentSong.stop().release();
+    if (!this.state.noSong) {
+      this.state.currentSong.stop().release();
+    }
 
     if (this.state.suggestions[key + 1].preview_url !== null) {
       // RNSoundPlayer.playUrl(dataA.body.tracks[0].preview_url);
@@ -194,7 +225,13 @@ export default class Factory extends Component {
           });
         },
       );
-      this.setState({currentSong: previewSong});
+      this.setState({
+        currentSong: previewSong,
+        noSong: false,
+        currentIndex: key,
+      });
+    } else {
+      this.setState({noSong: true, currentIndex: key});
     }
     if (key % 5 === 0) {
       this.GetPlaylistDetails();
@@ -209,6 +246,56 @@ export default class Factory extends Component {
           console.log('Something went wrong!', err);
         },
       );
+  }
+
+  onGoBack() {
+    swipeRef.goBackFromBottom();
+    if (this.state.currentIndex !== -1) {
+      if (!this.state.noSong) {
+        this.state.currentSong.stop().release();
+      }
+
+      if (
+        this.state.suggestions[this.state.currentIndex].preview_url !== null
+      ) {
+        // RNSoundPlayer.playUrl(dataA.body.tracks[0].preview_url);
+        const previewSong = new Sound(
+          this.state.suggestions[this.state.currentIndex].preview_url,
+          Sound.MAIN_BUNDLE,
+          (error) => {
+            if (error) {
+              console.log('failed to load the sound', error);
+              return;
+            }
+            // loaded successfully
+            console.log(
+              'duration in seconds: ' +
+                previewSong.getDuration() +
+                'number of channels: ' +
+                previewSong.getNumberOfChannels(),
+            );
+
+            // Play the sound with an onEnd callback
+            previewSong.play((success) => {
+              if (success) {
+                console.log('successfully finished playing');
+              } else {
+                console.log('playback failed due to audio decoding errors');
+              }
+            });
+          },
+        );
+        var newIndex = this.state.currentIndex - 1;
+        this.setState({
+          currentSong: previewSong,
+          noSong: false,
+          currentIndex: newIndex,
+        });
+      } else {
+        var newIndex = this.state.currentIndex - 1;
+        this.setState({noSong: true, currentIndex: newIndex});
+      }
+    }
   }
 
   LoadingScreen() {
@@ -319,7 +406,7 @@ export default class Factory extends Component {
             <TouchableOpacity
               style={styles.iconSmall}
               onPress={() => {
-                swipeRef.goBackFromBottom();
+                this.onGoBack();
               }}>
               <FontAwesome name="rotate-left" size={30} color="#f7cd6d" />
             </TouchableOpacity>

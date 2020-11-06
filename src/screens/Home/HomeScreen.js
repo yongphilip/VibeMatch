@@ -65,7 +65,7 @@ export default function HomeScreen({accessToken}) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.nameContainer}>
-        {user ? (
+        {user && user.images.length > 0 ? (
           <Image
             source={{uri: user.images[0].url}}
             style={styles.profileImage}
@@ -79,29 +79,34 @@ export default function HomeScreen({accessToken}) {
         <Text style={styles.name}>'s playlists</Text>
       </View>
       <ScrollView style={{flex: 1}}>
-        {playlists
-          ? playlists.map((item, key) => {
-              return item.owner.display_name === user.display_name ? (
-                <TouchableOpacity
-                  style={styles.playlistItem}
-                  key={key}
-                  onPress={() => setSelectedPlaylist(item.id)}>
-                  {item.images.length > 0 ? (
-                    <Image
-                      source={{uri: item.images[0].url}}
-                      style={styles.playlistImage}
-                    />
-                  ) : (
-                    <Image
-                      source={require('../../assets/noImg.jpg')}
-                      style={styles.playlistImage}
-                    />
-                  )}
-                  <Text style={styles.data}>{item.name}</Text>
-                </TouchableOpacity>
-              ) : null;
-            })
-          : null}
+        {playlists && playlists.length > 0 ? (
+          playlists.map((item, key) => {
+            return item.owner.display_name === user.display_name ? (
+              <TouchableOpacity
+                style={styles.playlistItem}
+                key={key}
+                onPress={() => setSelectedPlaylist(item.id)}>
+                {item.images.length > 0 ? (
+                  <Image
+                    source={{uri: item.images[0].url}}
+                    style={styles.playlistImage}
+                  />
+                ) : (
+                  <Image
+                    source={require('../../assets/noImg.jpg')}
+                    style={styles.playlistImage}
+                  />
+                )}
+                <Text style={styles.data}>{item.name}</Text>
+              </TouchableOpacity>
+            ) : null;
+          })
+        ) : (
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'white'}}>you have no personal playlists</Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
