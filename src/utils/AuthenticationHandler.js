@@ -4,7 +4,7 @@ class AuthenticationHandler {
   constructor() {
     this.spotifyAuthConfig = {
       clientId: 'be02be8587024bd69760fc0ba970e30f',
-      clientSecret: 'a9f71a2a154b40b8b6213997c3c3a122',
+      clientSecret: '',
       redirectUrl: 'com.spotifytest://oauthredirect',
       scopes: [
         'playlist-read-private',
