@@ -133,7 +133,7 @@ export default class Factory extends Component {
                             noSong: false,
                           });
                         } else {
-                          this.setState({noSong: true});
+                          this.setState({start: false, noSong: true});
                         }
                       }
                     },
